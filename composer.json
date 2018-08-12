@@ -20,9 +20,15 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "https://packagist.org"
+            "url": "https://asset-packagist.org"
         }
     ],
+    "config": {
+        "process-timeout": 1800,
+        "fxp-asset": {
+            "enabled": false
+        }
+    },
     "autoload": {
         "psr-4": {
             "tonyaxo\\yii2typeform\\": "src"

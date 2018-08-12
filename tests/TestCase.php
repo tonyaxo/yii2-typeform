@@ -79,7 +79,11 @@ abstract class TestCase extends BaseTestCase
                     'scriptFile' => __DIR__ .'/index.php',
                     'scriptUrl' => '/index.php',
                 ],
-            ]
+            ],
+            'aliases' => [
+                '@bower' => '@vendor/bower-asset',
+                '@npm' => '@vendor/npm-asset',
+            ],
         ], $config));
     }
 

@@ -6,10 +6,16 @@
  */
 
 $config = [
-    'google' => [
-        'serviceAccount' => '', // e.g. 'your-service-account-id@developer.gserviceaccount.com'
-        'serviceAccountPrivateKey' => "", // e.g. "-----BEGIN PRIVATE KEY-----   ...   -----END PRIVATE KEY-----\n"
-    ]
+    'components' => [
+        'typeform' => [
+            'class' => \tonyaxo\yii2typeform\TypeForm::class,
+            'clientId' => '', // e.g. 'your-typeform-application-id'
+            'clientSecret' => '', // e.g. 'your-typeform-application-secret'
+        ],
+        'cache' => [
+            'class' => 'yii\caching\DummyCache',
+        ],
+    ],
 ];
 
 if (is_file(__DIR__ . '/config.local.php')) {

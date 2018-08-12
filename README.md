@@ -28,10 +28,30 @@ Usage
 Once the extension is installed, simply use it in your code by  :
 
 ```php
-
+// SiteController.php
+public function actions()
+{
+    return [
+        'index' => [
+            'class' => 'tonyaxo\yii2typeform\AuthAction',
+            'successCallback' => [$this, 'onAuthSuccess'],
+        ],
+    ];
+}
 ```
 
 ```php
+// auth-view.php
+<?= \tonyaxo\yii2typeform\widgets\Auth::widget([
+        'baseAuthUrl' => ['/authorize/index'],
+        'linkOptions' => [
+                'class' => 'btn btn-info'
+        ]
+]);
+```
+
+```php
+// user.php
 class MyTypeForm extends EmbeddedTypeForm
 {
     const BASE_FORM_URL = 'https://myaccount.typeform.com/to/';

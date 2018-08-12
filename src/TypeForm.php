@@ -29,7 +29,7 @@ class TypeForm extends AuthClient implements CreateApiInterface
     /**
      * @throws \yii\base\InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->cache = \Yii::$app->get($this->cacheComponnt);

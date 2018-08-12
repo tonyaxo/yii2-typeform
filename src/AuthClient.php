@@ -4,6 +4,7 @@ namespace tonyaxo\yii2typeform;
 
 use yii\authclient\OAuth2;
 use yii\authclient\OAuthToken;
+use yii\httpclient\Client;
 
 class AuthClient extends OAuth2
 {
@@ -35,12 +36,16 @@ class AuthClient extends OAuth2
 
     public $scope;
 
+    /**
+     * @var array
+     */
     private $_scopes;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->initScope();
+        $this->initHttpClient();
     }
 
     /**
@@ -73,7 +78,7 @@ class AuthClient extends OAuth2
             foreach ($consts as $name => $value) {
                 $pos = strpos($name, 'SCOPE_');
                 if ($pos === 0) {
-                    $this->_scopes[$name] = $value;
+                    $this->_scopes[$value] = $value;
                 }
             }
             if ($this->_scopes === null) {
@@ -84,9 +89,17 @@ class AuthClient extends OAuth2
     }
 
     /**
+     * @param array $scopes
+     */
+    public function setScopes(array $scopes): void
+    {
+        $this->_scopes = $scopes;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    protected function defaultName()
+    protected function defaultName(): string
     {
         return 'typeform';
     }
@@ -94,7 +107,7 @@ class AuthClient extends OAuth2
     /**
      * {@inheritdoc}
      */
-    protected function defaultTitle()
+    protected function defaultTitle(): string
     {
         return 'TypeForm';
     }
@@ -106,12 +119,20 @@ class AuthClient extends OAuth2
     {
         if ($this->scope === null) {
             $scopes = $this->getScopes();
-            $prefix = $suffix = '';
-            if (count($scopes) > 0) {
-                $prefix = '{';
-                $suffix = '}';
-            }
-            $this->scope = $prefix . implode('}+{', $scopes) . $suffix;
+            $this->scope = implode(' ', $scopes);
         }
+    }
+
+    /**
+     * Init httpclient config.
+     */
+    protected function initHttpClient(): void
+    {
+        $client = $this->getHttpClient();
+        $client->formatters[Client::FORMAT_URLENCODED] = [
+            'class' => UrlEncodedFormatter::class,
+            'encodingType' => PHP_QUERY_RFC1738,
+        ];
+        $this->setHttpClient($client);
     }
 }
