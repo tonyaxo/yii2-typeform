@@ -26,7 +26,7 @@ composer.phar
 # phpunit itself is not needed
 phpunit.phar
 # local phpunit config
-#/phpunit.xml
+/phpunit.xml
 
 # local tests configuration
 /tests/data/config.local.php
