@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\authclient\data;
+namespace yiiunit\extensions\yii2typeform\data;
 
 /**
  * Web session class mock.

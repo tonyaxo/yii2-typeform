@@ -7,6 +7,11 @@ use yii\base\Model;
 
 /**
  * Class Whebhook
+ *
+ * @property string $formId
+ * @property string $createdAt
+ * @property string $updatedAt
+ *
  * @author Sergey Bogatyrev <sergey@bogatyrev.me>
  */
 class Webhook extends Model
@@ -43,7 +48,7 @@ class Webhook extends Model
      * @var string Date of last update to webhook. In ISO 8601 format, UTC time, to the second,
      * with T as a delimiter between the date and time.
      */
-    private $_updatedA;
+    private $_updatedAt;
 
     /**
      * @return string
@@ -80,16 +85,16 @@ class Webhook extends Model
     /**
      * @return string
      */
-    public function getUpdatedA(): string
+    public function getUpdatedAt(): string
     {
-        return $this->_updatedA;
+        return $this->_updatedAt;
     }
 
     /**
      * @param string $updatedA
      */
-    public function setUpdatedA(string $updatedA): void
+    public function setUpdatedAt(string $updatedAt): void
     {
-        $this->_updatedA = $updatedA;
+        $this->_updatedAt = $updatedAt;
     }
 }

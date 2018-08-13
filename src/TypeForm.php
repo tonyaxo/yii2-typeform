@@ -3,12 +3,17 @@
 namespace tonyaxo\yii2typeform;
 
 use tonyaxo\yii2typeform\api\forms\BaseForm;
+use tonyaxo\yii2typeform\api\webhooks\Webhook;
+use yii\authclient\InvalidResponseException;
 use yii\caching\CacheInterface;
 
 /**
+ * Class TypeForm
+ *
  * @property string $personalAccessToken Read-only
+ * @author Sergey Bogatyrev <sergey@bogatyrev.me>
  */
-class TypeForm extends AuthClient implements CreateApiInterface
+class TypeForm extends AuthClient implements Creatable, Hookable
 {
     const DEFAULT_CACHE_TIME = 300;
 
@@ -35,16 +40,18 @@ class TypeForm extends AuthClient implements CreateApiInterface
         $this->cache = \Yii::$app->get($this->cacheComponnt);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function createForm(BaseForm $form): string
     {
         // TODO: Implement createForm() method.
     }
 
     /**
-     * @param string $formId
-     * @return BaseForm
+     * @inheritdoc
      */
-    public function retrieveForm(string $formId): BaseForm
+    public function retrieveForm(string $formId): ?BaseForm
     {
         // caching
         $key = [__METHOD__, $formId];
@@ -62,15 +69,10 @@ class TypeForm extends AuthClient implements CreateApiInterface
     }
 
     /**
-     * @param string $search Returns items that contain the specified string.
-     * @param int $page The page of results to retrieve. Default `1` is the first page of results.
-     * @param int $pageSize Number of results to retrieve per page. Default is `10`. Maximum is `200`.
-     * @param string $workspace Retrieve typeforms for the specified workspace.
-     * @return array
-     *
+     * @inheritdoc
      * TODO autocomplete
      */
-    public function forms(?string $search = null, ?int $page = null, ?int $pageSize = null, ?string $workspace = null)
+    public function retrieveForms(?string $search = null, ?int $page = null, ?int $pageSize = null, ?string $workspace = null)
     : array
     {
         $query = ['search' => $search, 'page' => $page, 'page_size' => $pageSize, 'workspace_id' => $workspace];
@@ -82,12 +84,49 @@ class TypeForm extends AuthClient implements CreateApiInterface
             return $data;
         }
 
-        $data = $this->api("forms", 'GET', $query);
+        $data = $this->api('forms', 'GET', $query);
         if (array_key_exists('items', $data)) {
             $this->cache->set($key, $data['items'], $this->cacheExpire);
             return $data['items'];
         }
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteForm(string $formId): bool
+    {
+        // TODO: Implement deleteForm() method.
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createWebhook(string $formId, string $tag, string $url, bool $enabled = true): Webhook
+    {
+        $data = $this->api("forms/{$formId}/webhooks/{$tag}", 'PUT', [
+            'url' => $url,
+            'enabled' => $enabled,
+        ]);
+        return new Webhook($data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function retrieveWebhook(string $formId, string $tag): ?Webhook
+    {
+        $data = $this->api("forms/{$formId}/webhooks/{$tag}", 'GET');
+        return new Webhook($data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteWebhook(string $formId, string $tag): void
+    {
+        $this->api("forms/{$formId}/webhooks/{$tag}", 'DELETE');
     }
 
 
@@ -102,5 +141,19 @@ class TypeForm extends AuthClient implements CreateApiInterface
             'access_token' => $personalAccessToken
         ]]);
         $this->setAccessToken($token);
+    }
+
+    /**
+     * @inheritdoc
+     *
+     *
+     */
+    public function api($apiSubUrl, $method = 'GET', $data = [], $headers = [])
+    {
+        try {
+            return parent::api($apiSubUrl, $method, $data, $headers);
+        } catch (InvalidResponseException $e){
+            throw new ApiException($e->response, $e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
     }
 }
