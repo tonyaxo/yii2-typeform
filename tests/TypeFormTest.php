@@ -5,7 +5,8 @@ namespace yiiunit\extensions\yii2typeform;
 use PHPUnit\Framework\MockObject\MockObject;
 use tonyaxo\yii2typeform\api\webhooks\Webhook;
 use tonyaxo\yii2typeform\TypeForm;
-use yii\httpclient\Response;
+use yii\httpclient\Request;
+use yiiunit\extensions\yii2typeform\data\Service;
 
 class TypeFormTest extends TestCase
 {
@@ -25,43 +26,23 @@ class TypeFormTest extends TestCase
      */
     public function testCanCreateWebhook()
     {
-        [$formId, $tag, $url, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            'http://test-url/webhook',
-            // language=JSON
-            '{
-                    "id": "yRtagDm8AT",
-                    "form_id": "TESTID",
-                    "tag": "TESTAG",
-                    "url": "http://test-url/webhook",
-                    "enabled": true,
-                    "created_at": "2016-11-21T12:23:26Z",
-                    "updated_at": "2016-11-21T12:23:26Z"
-                }',
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '200',
-            ],
-        ];
-
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $hook = $typeForm->createWebhook($formId, $tag, $url, true);
+        $hook = $typeForm->createWebhook('NEW_TESTID', 'NEW_TESTAG', 'http://test-url/webhook', true);
 
         $this->assertInstanceOf(Webhook::class, $hook);
-        $this->assertEquals($formId, $hook->formId);
-        $this->assertEquals($tag, $hook->tag);
-        $this->assertEquals($url, $hook->url);
+        $this->assertEquals('NEW_TESTID', $hook->formId);
+        $this->assertEquals('NEW_TESTAG', $hook->tag);
+        $this->assertEquals('http://test-url/webhook', $hook->url);
     }
 
     /**
      * @expectedException \tonyaxo\yii2typeform\ApiException
-     * @expectedExceptionMessage Description of error
+     * @expectedExceptionMessage Failed to verify authentication
      * @expectedExceptionCode 403
      *
      * @throws \tonyaxo\yii2typeform\ApiException
@@ -69,24 +50,13 @@ class TypeFormTest extends TestCase
      */
     public function testCantCreateWebhook()
     {
-        [$formId, $tag, $url, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            'http://test-url/webhook',
-            // language=JSON
-            '{"code":"SOME_INTERNAL_CODE","description":"Description of error"}',
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '403',
-            ],
-        ];
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $typeForm->createWebhook($formId, $tag, $url, true);
+        $typeForm->createWebhook('NEW_TESTID', 'NEW_TESTAG', 'invalid_url', true);
     }
 
     /**
@@ -95,43 +65,23 @@ class TypeFormTest extends TestCase
      */
     public function testCanRetrieveWhebhook()
     {
-        [$formId, $tag, $url, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            'http://test-url/webhook',
-            // language=JSON
-            '{
-                    "id": "yRtagDm8AT",
-                    "form_id": "TESTID",
-                    "tag": "TESTAG",
-                    "url": "http://test-url/webhook",
-                    "enabled": true,
-                    "created_at": "2016-11-21T12:23:26Z",
-                    "updated_at": "2016-11-21T12:23:26Z"
-                }',
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '200',
-            ],
-        ];
-
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $hook = $typeForm->retrieveWebhook($formId, $tag);
+        $hook = $typeForm->retrieveWebhook('TESTID0', 'TESTAG0');
 
         $this->assertInstanceOf(Webhook::class, $hook);
-        $this->assertEquals($formId, $hook->formId);
-        $this->assertEquals($tag, $hook->tag);
-        $this->assertEquals($url, $hook->url);
+        $this->assertEquals('TESTID0', $hook->formId);
+        $this->assertEquals('TESTAG0', $hook->tag);
+        $this->assertEquals('http://test-url/webhook0', $hook->url);
     }
 
     /**
      * @expectedException \tonyaxo\yii2typeform\ApiException
-     * @expectedExceptionMessage Description of error
+     * @expectedExceptionMessage Endpoint not found
      * @expectedExceptionCode 404
      *
      * @throws \tonyaxo\yii2typeform\ApiException
@@ -139,23 +89,13 @@ class TypeFormTest extends TestCase
      */
     public function testCantRetrieveWebhook()
     {
-        [$formId, $tag, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            // language=JSON
-            '{"code":"SOME_INTERNAL_CODE","description":"Description of error"}',
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '404',
-            ],
-        ];
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $typeForm->retrieveWebhook($formId, $tag);
+        $typeForm->retrieveWebhook('NOT_EXISTS_ID', 'NOT_EXISTS_TAG');
     }
 
     /**
@@ -164,28 +104,18 @@ class TypeFormTest extends TestCase
      */
     public function testCanDeleteWhebhook()
     {
-        [$formId, $tag, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            null,
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '204',
-            ],
-        ];
-
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $typeForm->deleteWebhook($formId, $tag);
+        $typeForm->deleteWebhook('TESTID1', 'TESTAG1');
     }
 
     /**
      * @expectedException \tonyaxo\yii2typeform\ApiException
-     * @expectedExceptionMessage Description of error
+     * @expectedExceptionMessage Endpoint not found
      * @expectedExceptionCode 404
      *
      * @throws \tonyaxo\yii2typeform\ApiException
@@ -193,31 +123,20 @@ class TypeFormTest extends TestCase
      */
     public function testCantDeleteWebhook()
     {
-        [$formId, $tag, $content, $headers] = [
-            'TESTID',
-            'TESTAG',
-            '{"code":"SOME_INTERNAL_CODE","description":"Description of error"}',
-            [
-                'content-type' =>  'application/json; charset=UTF-8',
-                'http-code' => '404',
-            ],
-        ];
-        $client = $this->createMockClient($content, $headers);
+        $client = $this->createMockClient();
         /** @var TypeForm $typeForm */
         $typeForm = \Yii::$app->get('typeform');
         $typeForm->setPersonalAccessToken(self::DEFAULT_ACCESS_TOKEN);
         $typeForm->setHttpClient($client);
 
-        $typeForm->deleteWebhook($formId, $tag);
+        $typeForm->deleteWebhook('NOT_EXISTS_ID', 'NOT_EXISTS_TAG');
     }
 
     /**
-     * Creates Client that returns Response corresponding with `$responseContent` and `$responseHeaders`.
-     * @param string $responseContent
-     * @param array $responseHeaders
+     * Creates \yii\httpclient\Client that makes fake requests.
      * @return MockObject
      */
-    protected function createMockClient(?string $responseContent, array $responseHeaders): MockObject
+    protected function createMockClient(): MockObject
     {
         //    TypeForm::createWebhook()
         // -> TypeForm::api()
@@ -232,18 +151,18 @@ class TypeFormTest extends TestCase
         // -> yii\httpclient\Cleint::createResponse($responseContent, $responseHeaders = [])
 
         $client = $this->getMockBuilder(\yii\httpclient\Client::class)
-            ->setMethods(['createResponse'])
+            ->setMethods(['send'])
             ->getMock();
 
         $client->expects($this->once())
-            ->method('createResponse')
-            ->willReturnCallback(function($originContent, $originHeaders) use ($responseContent, $responseHeaders, $client) {
-                $config['class'] = Response::className();
-                $config['client'] = $client;
-                /** @var Response $response */
-                $response = \Yii::createObject($config);
-                $response->setContent($responseContent);
-                $response->setHeaders($responseHeaders);
+            ->method('send')
+            ->willReturnCallback(function(Request $request) use ($client) {
+                $server = new Service();
+                // necessary to execute applyAccessTokenToRequest
+                $request->beforeSend();
+                $response = $server->response($request);
+                $response->client = $client;
+
                 return $response;
             });
 
