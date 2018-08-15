@@ -2,10 +2,16 @@
 
 namespace tonyaxo\yii2typeform;
 
+use yii\authclient\InvalidResponseException;
 use yii\authclient\OAuth2;
 use yii\authclient\OAuthToken;
 use yii\httpclient\Client;
+use yii\httpclient\Response;
 
+/**
+ * Class AuthClient
+ * @author Sergey Bogatyrev <sergey@bogatyrev.me>
+ */
 class AuthClient extends OAuth2
 {
     /**
@@ -94,6 +100,40 @@ class AuthClient extends OAuth2
     public function setScopes(array $scopes): void
     {
         $this->_scopes = $scopes;
+    }
+
+    /**
+     * @inheritdoc
+     * @return Response
+     * @throws InvalidResponseException
+     * @throws \yii\httpclient\Exception
+     */
+    protected function sendRequest($request): Response
+    {
+        $response = $request->send();
+
+        if (!$response->getIsOk()) {
+            throw new InvalidResponseException($response, 'Request failed with code: ' . $response->getStatusCode() . ', message: ' . $response->getContent());
+        }
+
+        return $response;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @param null|Response $response
+     * @throws ApiException
+     */
+    public function api($apiSubUrl, $method = 'GET', $data = [], $headers = [], ?Response &$response = null)
+    {
+        try {
+            /** @var Response $response */
+            $response = parent::api($apiSubUrl, $method, $data, $headers);
+            return $response->getData();
+        } catch (InvalidResponseException $e){
+            throw new ApiException($e->response, $e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
     }
 
     /**

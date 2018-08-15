@@ -4,8 +4,8 @@ namespace tonyaxo\yii2typeform;
 
 use tonyaxo\yii2typeform\api\forms\BaseForm;
 use tonyaxo\yii2typeform\api\webhooks\Webhook;
-use yii\authclient\InvalidResponseException;
 use yii\caching\CacheInterface;
+use yii\httpclient\Response;
 
 /**
  * Class TypeForm
@@ -37,6 +37,7 @@ class TypeForm extends AuthClient implements Creatable, Hookable
     public function init(): void
     {
         parent::init();
+        // TODO default dummy cache
         $this->cache = \Yii::$app->get($this->cacheComponnt);
     }
 
@@ -45,7 +46,18 @@ class TypeForm extends AuthClient implements Creatable, Hookable
      */
     public function createForm(BaseForm $form): string
     {
-        // TODO: Implement createForm() method.
+        /** @var $response Response */
+        $this->api("/forms", 'POST', $form->toArray(), [], $response);
+        $location = $response->getHeaders()->get('Location');
+        return basename($location);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateForm(BaseForm $form): void
+    {
+        $this->api("/forms/{$form->id}", 'PUT', $form->toArray());
     }
 
     /**
@@ -95,9 +107,9 @@ class TypeForm extends AuthClient implements Creatable, Hookable
     /**
      * @inheritdoc
      */
-    public function deleteForm(string $formId): bool
+    public function deleteForm(string $formId): void
     {
-        // TODO: Implement deleteForm() method.
+        $this->api("forms/{$formId}", 'DELETE');
     }
 
     /**
@@ -129,7 +141,6 @@ class TypeForm extends AuthClient implements Creatable, Hookable
         $this->api("forms/{$formId}/webhooks/{$tag}", 'DELETE');
     }
 
-
     /**
      * Personal access token for Typeform's APIs. Read-only.
      * @param string $personalAccessToken
@@ -141,19 +152,5 @@ class TypeForm extends AuthClient implements Creatable, Hookable
             'access_token' => $personalAccessToken
         ]]);
         $this->setAccessToken($token);
-    }
-
-    /**
-     * @inheritdoc
-     *
-     *
-     */
-    public function api($apiSubUrl, $method = 'GET', $data = [], $headers = [])
-    {
-        try {
-            return parent::api($apiSubUrl, $method, $data, $headers);
-        } catch (InvalidResponseException $e){
-            throw new ApiException($e->response, $e->getMessage(), $e->getCode(), $e->getPrevious());
-        }
     }
 }
