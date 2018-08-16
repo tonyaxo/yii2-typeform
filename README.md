@@ -6,9 +6,12 @@
     <br>
 </p>
 
-Typeform.com yii2 integration
+[Typeform.com](https://typeform.com) yii2 integration
 
+[![PHP since 7.1](https://img.shields.io/badge/PHP-%3E%3D%207.1-blue.svg)](http://php.net/manual/en/migration71.php)
 [![Build Status](https://travis-ci.org/tonyaxo/yii2-typeform.svg?branch=master)](https://travis-ci.org/tonyaxo/yii2-typeform)
+[![Coverage Status](https://coveralls.io/repos/github/tonyaxo/yii2-typeform/badge.svg?branch=master)](https://coveralls.io/github/tonyaxo/yii2-typeform?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/01b1d7f5-0f64-4485-a37c-6067db748e1d/mini.png)](https://insight.sensiolabs.com/projects/01b1d7f5-0f64-4485-a37c-6067db748e1d)
 
 Installation
 ------------

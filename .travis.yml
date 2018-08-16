@@ -18,11 +18,13 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
-  - |
-    if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
-      PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
-    fi
+  - PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml"
   - composer require --prefer-dist --no-interaction 'phpunit/phpunit:^6.2|^7.1'
+  - composer require --prefer-dist --no-interaction php-coveralls/php-coveralls
 
 script:
+  - mkdir -p build/logs
   - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS --exclude-group auth-widget
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls -v
