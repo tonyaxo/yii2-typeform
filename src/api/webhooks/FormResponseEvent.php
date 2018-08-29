@@ -17,6 +17,10 @@ class FormResponseEvent extends WebhookEvent
      */
     public $token;
     /**
+     * @var array Hidden fields.
+     */
+    public $hidden;
+    /**
      * @var array If your typeform includes a score calculation, the webhook response will contain this object.
      */
     public $calculated;
@@ -58,11 +62,20 @@ class FormResponseEvent extends WebhookEvent
             [['token', 'formId', 'form_id', 'submittedAt', 'submitted_at', 'landedAt', 'landed_at'], 'string'],
             ['event_type', 'in', 'range' => [WebhookEvent::TYPE_FORM_RESPONSE]],
             ['event_id', 'string'],
-            [['calculated', 'definition', 'answers'], 'safe'],
+            [['calculated', 'definition', 'answers', 'hidden'], 'safe'],
         ];
     }
 
     /**
+     * @return bool
+     */
+    public function isComplete(): bool
+    {
+        return !empty($this->answers);
+    }
+
+    /**
+     * Unique ID for the typeform.
      * @return string
      */
     public function getFormId(): string
@@ -79,6 +92,7 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
+     * Date and time the typeform responses were submitted. In ISO 8601 format (UTC).
      * @return string
      */
     public function getSubmittedAt(): string
@@ -95,6 +109,7 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
+     * Date and time of the form landing. In ISO 8601 format (UTC).
      * @return string
      */
     public function getLandedAt(): string
@@ -111,6 +126,7 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
+     * Is an array that lists the questions in your typeform. You can use the definition to match questions with answers.
      * @return mixed
      */
     public function getDefinition()
@@ -127,7 +143,8 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
-     * @return mixed
+     * Is an array of objects that lists the answers for the questions in your typeform.
+     * @return null|array
      */
     public function getAnswers()
     {
@@ -151,6 +168,7 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
+     * Return calculated score.
      * @return int|null
      */
     public function getScore(): ?int
@@ -159,13 +177,16 @@ class FormResponseEvent extends WebhookEvent
     }
 
     /**
-     * Process answers and question.
+     * Process answers and question to results.
      * @return bool
      */
     public function process(): bool
     {
         $this->results = [];
         $fieldsCount = $answersCount = 0;
+        if (!$this->isComplete()) {
+            return false;
+        }
 
         if (isset($this->definition['fields']) && is_array($this->definition['fields'])) {
             $fieldsCount += count($this->definition['fields']);
@@ -183,7 +204,7 @@ class FormResponseEvent extends WebhookEvent
         $answers = [];
         foreach ($this->answers as $answer) {
 
-            $answer = new ResultField($answer);
+            $answer = new Answer($answer);
             if (!$answer->validate()) {
                 foreach ($answer->getErrors() as $name => $message) {
                     $this->addErrors(['answers.' . $name => $message]);
@@ -209,7 +230,6 @@ class FormResponseEvent extends WebhookEvent
         }
 
         return $this->hasErrors() ? false : true;
-
     }
 
     /**

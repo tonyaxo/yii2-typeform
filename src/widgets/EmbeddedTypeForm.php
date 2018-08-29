@@ -18,7 +18,6 @@ use yii\web\View;
  * @property array $url
  *
  * @todo beforeHiddenFields
- * @todo url by form id
  */
 class EmbeddedTypeForm extends Widget
 {

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace tonyaxo\yii2typeform\api\webhooks;
-
 
 use tonyaxo\yii2typeform\api\TypeTrait;
 use yii\base\Model;
@@ -37,6 +35,10 @@ class Answer extends Model
      */
     const TYPE_DATE = 'date';
     /**
+     * For `email`;
+     */
+    const TYPE_EMAIL = 'email';
+    /**
      * For `legal` and `yes_no`;
      */
     const TYPE_BOOLEAN = 'boolean';
@@ -69,12 +71,19 @@ class Answer extends Model
      * _payment_ for `payment`.
      */
     public $type;
+    /**
+     * @var mixed Original value.
+     */
+    public $value;
 
     /**
      * @var string
      */
     protected $text;
 
+    /**
+     * @param array $field
+     */
     public function setField(array $field): void
     {
         $this->id = $field['id'] ?? null;
@@ -93,7 +102,7 @@ class Answer extends Model
                 $converter = Inflector::variablize($name) . '2Text';
                 if (method_exists($this, $converter)) {
                     $this->text = $this->$converter($value);
-
+                    $this->value = $value;
                     return;
                 }
                 throw $e;
@@ -107,6 +116,14 @@ class Answer extends Model
     public function getText(): string
     {
         return $this->text;
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setText(string $text): void
+    {
+        $this->text = $text;
     }
 
     /**

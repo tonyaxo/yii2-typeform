@@ -34,7 +34,7 @@ abstract class WebhookEvent extends Model
      */
     const EVENT_ID_ATTRIBUTE = 'event_id';
 
-    protected static $types = [
+    protected static $handlers = [
         self::TYPE_FORM_RESPONSE => FormResponseEvent::class,
     ];
 
@@ -96,10 +96,10 @@ abstract class WebhookEvent extends Model
         $eventType = $request->getBodyParam(static::EVENT_TYPE_ATTRIBUTE, false);
         $eventId = $request->getBodyParam(static::EVENT_ID_ATTRIBUTE, false);
 
-        if ($eventType === false || !isset(static::$types[$eventType])) {
+        $eventClass = self::getEventHandler($eventType);
+        if ($eventClass === null) {
             return null;
         }
-        $eventClass = static::$types[$eventType];
         /** @var WebhookEvent $event */
         $event = new $eventClass([
             static::EVENT_TYPE_ATTRIBUTE => $eventType, static::EVENT_ID_ATTRIBUTE => $eventId
@@ -113,8 +113,16 @@ abstract class WebhookEvent extends Model
      * @param string $type
      * @param null|string $handleClass
      */
-    public static function addEventType(string $type, ?string $handleClass): void
+    public static function addEventHandler(string $type, ?string $handleClass): void
     {
-        static::$types[$type] = $handleClass;
+        static::$handlers[$type] = $handleClass;
+    }
+
+    public static function getEventHandler(string $type): ?string
+    {
+        if (!isset(static::$handlers[$type])) {
+            return null;
+        }
+        return static::$handlers[$type];
     }
 }
