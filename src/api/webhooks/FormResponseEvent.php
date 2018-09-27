@@ -2,6 +2,8 @@
 
 namespace tonyaxo\yii2typeform\api\webhooks;
 
+use yii\helpers\ArrayHelper;
+
 /**
  * Class FormResponseEvent
  *
@@ -72,6 +74,32 @@ class FormResponseEvent extends WebhookEvent
     public function isComplete(): bool
     {
         return !empty($this->answers);
+    }
+
+    /**
+     * @return array
+     */
+    public function getHiddenFields(): array
+    {
+        return empty($this->hidden) ? [] : $this->hidden;
+    }
+
+    /**
+     * @param string $name
+     * @return null|string
+     */
+    public function getHiddenField(string $name): ?string
+    {
+        return ArrayHelper::getValue($this->getHiddenFields(), $name, null);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasHiddenField(string $name): bool
+    {
+        return array_key_exists($name, $this->getHiddenFields());
     }
 
     /**

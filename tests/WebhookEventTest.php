@@ -41,11 +41,18 @@ class WebhookEventTest extends \yiiunit\extensions\yii2typeform\TestCase
         /** @var \tonyaxo\yii2typeform\api\webhooks\FormResponseEvent $result */
         $result = WebhookEvent::handle($request);
 
+        $hiddenFields = empty($hidden) ? [] : $hidden;
+        $emailField = \yii\helpers\ArrayHelper::getValue($hiddenFields, 'email', null);
+        $hasEmail = array_key_exists('email', $hiddenFields);
+
         $this->assertInstanceOf(\tonyaxo\yii2typeform\api\webhooks\FormResponseEvent::class, $result);
         $this->assertEquals($eventId, $result->getEventId());
         $this->assertEquals($score, $result->getScore());
         $this->assertEquals($formId, $result->getFormId());
         $this->assertEquals($hidden, $result->hidden);
+        $this->assertEquals($hiddenFields, $result->getHiddenFields());
+        $this->assertEquals($emailField, $result->getHiddenField('email'));
+        $this->assertEquals($hasEmail, $result->hasHiddenField('email'));
         $this->assertEquals($complete, $result->isComplete());
     }
 
