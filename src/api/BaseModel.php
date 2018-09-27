@@ -87,11 +87,6 @@ class BaseModel extends Model implements EmptyCheckableInterface
                 $data[$field] = $attribute;
             }
         }
-
-        if ($this instanceof Linkable) {
-            $data['_links'] = Link::serialize($this->getLinks());
-        }
-
         return $recursive ? ArrayHelper::toArray($data) : $data;
     }
 
