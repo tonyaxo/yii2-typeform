@@ -49,6 +49,10 @@ class Webhook extends Model
      * with T as a delimiter between the date and time.
      */
     private $_updatedAt;
+    /**
+     * @var bool No docs
+     */
+    private $_verifySsl;
 
     /**
      * @return string
@@ -96,5 +100,22 @@ class Webhook extends Model
     public function setUpdatedAt(string $updatedAt): void
     {
         $this->_updatedAt = $updatedAt;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVerifySsl()
+    {
+        return $this->_verifySsl;
+    }
+
+    /**
+     * @param mixed $verifySsl
+     * @todo Typecast
+     */
+    public function setVerifySsl($verifySsl): void
+    {
+        $this->_verifySsl = $verifySsl;
     }
 }
