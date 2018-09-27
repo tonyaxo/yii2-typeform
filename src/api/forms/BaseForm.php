@@ -182,7 +182,7 @@ class BaseForm extends BaseModel implements Linkable
 //        $this->assignSingle(__FUNCTION__, $settings, Settings::class);
     }
 
-    public function getSettings(): ?Settings
+    public function getSettings(): array//?Settings
     {
         return $this->_settings;
     }
