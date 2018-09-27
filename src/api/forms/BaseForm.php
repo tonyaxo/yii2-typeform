@@ -112,10 +112,12 @@ class BaseForm extends BaseModel implements Linkable
 
     /**
      * @param Field[] $fields
+     * @todo Implement Fields
      */
     public function setFields(array $fields): void
     {
-        $this->assignMultiple(__FUNCTION__, $fields, Field::class);
+        $this->_fields = $fields;
+//        $this->assignMultiple(__FUNCTION__, $fields, Field::class);
     }
 
     public function getFields(): array
