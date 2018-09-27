@@ -163,7 +163,8 @@ class BaseForm extends BaseModel implements Linkable
 
     public function setLogic(array $logic): void
     {
-        $this->assignMultiple(__FUNCTION__, $logic, Logic::class);
+        $this->_logic = $logic;
+//        $this->assignMultiple(__FUNCTION__, $logic, Logic::class);
     }
 
     public function getLogic(): array
@@ -171,9 +172,14 @@ class BaseForm extends BaseModel implements Linkable
         return $this->_logic;
     }
 
+    /**
+     * @param array $settings
+     * @todo Implement Settings
+     */
     public function setSettings($settings): void
     {
-        $this->assignSingle(__FUNCTION__, $settings, Settings::class);
+        $this->_settings = $settings;
+//        $this->assignSingle(__FUNCTION__, $settings, Settings::class);
     }
 
     public function getSettings(): ?Settings
