@@ -173,6 +173,8 @@ class AuthClient extends OAuth2
             'class' => UrlEncodedFormatter::class,
             'encodingType' => PHP_QUERY_RFC1738,
         ];
+        $client->requestConfig = ['format' => Client::FORMAT_JSON];
+        $client->responseConfig = ['format' => Client::FORMAT_JSON];
         $this->setHttpClient($client);
     }
 }
