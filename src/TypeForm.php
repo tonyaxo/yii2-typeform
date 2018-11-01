@@ -96,7 +96,8 @@ class TypeForm extends AuthClient implements Creatable, Hookable
             return $data;
         }
 
-        $data = $this->api('forms', 'GET', $query);
+        $query = http_build_query($query);
+        $data = $this->api("forms?{$query}", 'GET');
         if (array_key_exists('items', $data)) {
             $this->cache->set($key, $data['items'], $this->cacheExpire);
             return $data['items'];
