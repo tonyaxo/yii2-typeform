@@ -30,6 +30,10 @@ class ResultField extends Model
     public $type;
 
     public $ref;
+    /**
+     * @var array
+     * @todo test it
+     */
     public $properties;
 
     private $_allowMultipleSelections;

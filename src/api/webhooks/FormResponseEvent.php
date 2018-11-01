@@ -257,6 +257,12 @@ class FormResponseEvent extends WebhookEvent
             }
         }
 
+        // backward capability
+        // TODO test it
+        if (isset($this->definition['calculated']) && isset($this->definition['calculated']['score'])) {
+            $this->calculated['score'] = $this->definition['calculated']['score'];
+        }
+
         return $this->hasErrors() ? false : true;
     }
 
