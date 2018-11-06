@@ -35,6 +35,11 @@ class ResultField extends Model
      * @todo test it
      */
     public $properties;
+    /**
+     * @var array
+     * @todo test it
+     */
+    public $choices;
 
     private $_allowMultipleSelections;
     private $_allowOtherChoice;
